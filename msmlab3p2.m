@@ -47,24 +47,22 @@ dMin_left_eval  = arrayfun(f_dMin_left,  left, right, mid);
 dMin_right_eval = arrayfun(f_dMin_right, left, right, mid);
 dMin_mid_eval   = arrayfun(f_dMin_mid,   left, right, mid);
 
-%{
-UsysMax = sqrt((dMax_left_eval  .* variableUncertainty(left)).^2 + ...
+variableUncertainty = @(x) 1e-6*ones(size(x));
+
+Usys_PrincipalMax = sqrt((dMax_left_eval  .* variableUncertainty(left)).^2 + ...
                (dMax_right_eval .* variableUncertainty(right)).^2 + ...
                (dMax_mid_eval   .* variableUncertainty(mid)).^2);
 
-UsysMin = sqrt((dMin_left_eval  .* variableUncertainty(left)).^2 + ...
+Usys_PrincipalMin = sqrt((dMin_left_eval  .* variableUncertainty(left)).^2 + ...
                (dMin_right_eval .* variableUncertainty(right)).^2 + ...
                (dMin_mid_eval   .* variableUncertainty(mid)).^2); 
-%}
+
 Usys_principal = sqrt((dMax_left_eval  .* variableUncertainty(left)).^2 + ...
             (dMax_right_eval .* variableUncertainty(right)).^2 + ...
             (dMax_mid_eval   .* variableUncertainty(mid)).^2 + ...
             (dMin_left_eval  .* variableUncertainty(left)).^2 + ...
             (dMin_right_eval .* variableUncertainty(right)).^2 + ...
             (dMin_mid_eval   .* variableUncertainty(mid)).^2);
-
-Usys_principal=Usys_principal*100;
-Usys_flexural=Usys_flexural*100;
 
 syms deflection1
 F1 = 3*E*I*deflection1/l^3;
@@ -75,7 +73,12 @@ Sigma_flex1 = dF1*x*c/I;
 
 Usys_flexural = sqrt((dF1_eval .* variableUncertainty(deflection)).^2);
 
-Results = table(stress1(:), stress2(:), Sigma_flex(:), Usys_principal(:), Usys_flexural(:), ...
-                'VariableNames', {'Stress1(psi)','Stress2(psi)','Flexural Stress(psi)','PrincipalUncertainty(%)','FlexuralUncertainty(%)'});
+Usys_principal=Usys_principal*100;
+Usys_flexural=Usys_flexural*100;
+Usys_PrincipalMax=Usys_PrincipalMax*100;
+Usys_PrincipalMin=Usys_PrincipalMin*100;
+
+Results = table(stress1(:), stress2(:), Sigma_flex(:), Usys_PrincipalMax(:), Usys_PrincipalMin(:), Usys_principal(:), Usys_flexural(:), ...
+                'VariableNames', {'Stress1(psi)','Stress2(psi)','FlexuralStress(psi)','PrincipalMaxUncertainty(%)', 'PrincipalMinUncertainty(%)', 'PrincipalUncertainty(%)','FlexuralUncertainty(%)'});
 
 disp(Results)
